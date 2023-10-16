@@ -3,6 +3,7 @@ package pk.internee
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.MenuItem
+import android.widget.TextView
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
@@ -17,6 +18,10 @@ import androidx.room.Query
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import com.google.android.material.navigation.NavigationView
+import retrofit2.Call
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
+import retrofit2.create
 
 class MainActivity : AppCompatActivity() {
 
@@ -27,6 +32,16 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        val textView = findViewById<TextView>(R.id.text_view)
+
+        val retrofit = Retrofit.Builder()
+            .baseUrl("https://jsonplaceholder.typicode.com/")
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+
+        val interneesApi: interneesApi = retrofit.create()
+        val call: Call<List<internees>> = interneesApi.interness
 
         val db = Room.databaseBuilder(applicationContext, AppDatabase::class.java, "internee.pk database").build()
         val internshipDao = db.internshipDao()
