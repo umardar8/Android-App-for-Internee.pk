@@ -7,6 +7,15 @@ import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentTransaction
+import androidx.room.Dao
+import androidx.room.Database
+import androidx.room.Delete
+import androidx.room.Entity
+import androidx.room.Insert
+import androidx.room.PrimaryKey
+import androidx.room.Query
+import androidx.room.Room
+import androidx.room.RoomDatabase
 import com.google.android.material.navigation.NavigationView
 
 class MainActivity : AppCompatActivity() {
@@ -18,6 +27,10 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        val db = Room.databaseBuilder(applicationContext, AppDatabase::class.java, "internee.pk database").build()
+        val internshipDao = db.internshipDao()
+        val internship = internshipDao.getAll()
 
         drawerLayout = findViewById(R.id.drawerLayout)
         navView = findViewById(R.id.nav_view)
@@ -58,4 +71,30 @@ class MainActivity : AppCompatActivity() {
 
         return super.onOptionsItemSelected(item)
     }
+
+    // implementing Room database and data persistence in internee.pk app
+    @Entity
+    data class Internship(
+        @PrimaryKey val id: Int,
+        val name: String,
+        val duration: Int
+    )
+
+    @Dao
+    interface InternshipDao {
+        @Query("SELECT * FROM Internship")
+        fun getAll(): List<Internship>
+
+        @Insert
+        fun insertAll(vararg internship: Internship)
+
+        @Delete
+        fun delete(internship: Internship)
+    }
+
+    @Database(entities = [Internship::class], version = 1)
+    abstract class AppDatabase: RoomDatabase() {
+        abstract fun internshipDao(): InternshipDao
+    }
+
 }
